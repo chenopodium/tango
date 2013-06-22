@@ -1,7 +1,7 @@
 tango
 =====
 
-Similate the famous EPR experiment - new look and feel and more flexible :-)
+Simulate the famous EPR experiment - new look and feel and more flexible :-)
 Please check out the Wiki page(s) for more details and screen shots.
 
 To run it (on Windows), execute the dist/run.bat file
