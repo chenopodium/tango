@@ -36,7 +36,7 @@ public class ModelFactory {
         return null;
     }
     public static ArrayList<ExperimentModel> getPossibleModels(Experiment exp) {
-        ArrayList<ExperimentModel> models = new ArrayList<>();
+        ArrayList<ExperimentModel> models = new ArrayList<ExperimentModel>();
         models.add(new DefaultExperimentModel());
         models.add(new ChantalsModel());
         models.add(new BryansModel());
@@ -44,14 +44,14 @@ public class ModelFactory {
         return models;
     }
     public static ArrayList<DetectorEfficiencyIF> getPossibleDetectorEfficencies(Experiment exp) {
-        ArrayList<DetectorEfficiencyIF> eff = new ArrayList<> ();
+        ArrayList<DetectorEfficiencyIF> eff = new ArrayList<DetectorEfficiencyIF> ();
         eff.add(new DefaultDetectorEfficiency());
         eff.add(new ChantalsDetectorEfficiency());
         eff.add(new ExternalDetectorEfficiency(exp));
         return eff;        
     }
     public static ArrayList<MeasurementFormulaIF> getPossibleMeasurementFormulas(Experiment exp) {
-        ArrayList<MeasurementFormulaIF> form = new ArrayList<> ();
+        ArrayList<MeasurementFormulaIF> form = new ArrayList<MeasurementFormulaIF> ();
         form.add(new DefaultMeasurementFormula());
         form.add(new ChantalsMeasurementFormula());
         form.add(new BryansMeasurementFormula());
@@ -59,7 +59,7 @@ public class ModelFactory {
         return form;
     }
      public static ArrayList<AngleGeneratorIF> getPossibleAngleGenerators() {
-        ArrayList<AngleGeneratorIF> ang = new ArrayList<> ();
+        ArrayList<AngleGeneratorIF> ang = new ArrayList<AngleGeneratorIF> ();
         ang.add(new DefaultAngleGenerator());
         ang.add(new ExternalAngleGenerator());        
         return ang;

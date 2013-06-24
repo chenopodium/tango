@@ -65,7 +65,7 @@ public class PreferenceManager {
     
     private void init() {
         prefs = Preferences.userRoot().node(this.getClass().getName());
-        userprefs = new ArrayList<>();
+        userprefs = new ArrayList<UserPref>();
        
     }
     public String getOutputFolder() {
