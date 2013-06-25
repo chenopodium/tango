@@ -19,10 +19,14 @@ import javax.swing.JOptionPane;
 public class FileTools {
 
     public static String getFile(String title, String ext, String val) {
-        return getFile(title, ext, val, false);
+        return getFile(title, ext, val, false, false);
+    }
+    
+    public static String getDir(String title, String val) {
+        return getFile(title, "", val, false, true);
     }
 
-    public static String getFile(String title, String ext, String val, boolean toSave) {
+    public static String getFile(String title, String ext, String val, boolean toSave, boolean dir) {
         JFileChooser cc = new JFileChooser();
         cc.setDialogTitle(title);
 
@@ -37,15 +41,22 @@ public class FileTools {
                 cc.setCurrentDirectory(f.getParentFile());
             }
         }
-        cc.setVisible(true);
-        String[] Ext = new String[]{ext};
-        if (ext.indexOf(",") > 0) {
-            Ext = StringTools.parseList(ext, ",").toArray(Ext);
-
+        if (dir) {
+            cc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         }
-        System.out.println("Ext: "+ Arrays.toString(Ext));
-        ExtensionFileFilter filter1 = new ExtensionFileFilter(Arrays.toString(Ext) + " files", Ext);
-        cc.setFileFilter(filter1);
+        else cc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        cc.setVisible(true);
+        
+        if (ext != null && ext.length()>0) {
+            String[] Ext = new String[]{ext};
+            if (ext.indexOf(",") > 0) {
+                Ext = StringTools.parseList(ext, ",").toArray(Ext);
+
+            }
+            System.out.println("Ext: "+ Arrays.toString(Ext));
+            ExtensionFileFilter filter1 = new ExtensionFileFilter(Arrays.toString(Ext) + " files", Ext);
+            cc.setFileFilter(filter1);
+        }
 
         String res = val;
         int ans = 0;
@@ -84,7 +95,7 @@ public class FileTools {
                     }
                 }
             }
-            if (f.isDirectory()) {
+            if (f.isDirectory() && !dir) {
                 JOptionPane.showMessageDialog(null, f + " is a directory - please select a file");
                 //f.get
             } else {

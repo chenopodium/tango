@@ -82,7 +82,7 @@ public class QRCResult extends AbstractResult {
 
     @Override
     public double computeValueForAngle(double angle_deg) {
-        double y = Math.cos(Math.toRadians(angle_deg));
+        double y = -Math.cos(Math.toRadians(angle_deg));
         return y;
     }
 }

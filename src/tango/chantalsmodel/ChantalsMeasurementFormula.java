@@ -26,8 +26,9 @@ public class ChantalsMeasurementFormula extends ModelItem implements Measurement
      public int measure(Detector detector, Particle particle) {   
         DefaultHiddenVariables vars = (DefaultHiddenVariables) particle.getHiddenVars();
         double theta = vars.getTheta();
+         if (particle.isB()) theta = theta + 180;
         double delta = theta+ detector.getAngleInDegrees();
-        int spin = (int) Math.signum(Math.sin(Math.toRadians(delta)));     
+        int spin = (int) Math.signum(-Math.sin(Math.toRadians(delta)));     
         return spin;
      }
 
