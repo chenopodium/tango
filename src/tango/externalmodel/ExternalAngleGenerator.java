@@ -58,9 +58,10 @@ public class ExternalAngleGenerator extends ModelItem implements AngleGeneratorI
         if (angles == null) {
             return 0;
         }
-        if (pos > angles.size()) {
+        if (pos >= angles.size()) {
             pos = 0;
         }
-        return angles.get(pos);
+        
+        return angles.get(pos++);
     }
 }

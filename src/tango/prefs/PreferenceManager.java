@@ -21,7 +21,7 @@ public class PreferenceManager {
     private ArrayList<UserPref> userprefs;
     
     
-    public UserPref nr_angles;
+  //  public UserPref nr_angles;
     public UserPref outputFolder;
     public UserPref model;
     public UserPref times;
@@ -41,7 +41,8 @@ public class PreferenceManager {
         if (manager != null) manager.createPrefs();
     }
      private void createPrefs() {
-        nr_angles = add("NR_ANGLES", "Number of angles", "8", "The number of angles to use in this simulation");
+       // nr_angles = add("NR_ANGLES", "Number of angles", "16", "The number of angles to use in this simulation");
+       // nr_angles.setValue(16);
         times = add("TIMES", "Number of pairs", "1000", "The number of pairs to generate per simulation");
         model = add("MODEL", "Experiment model", "default", "Experiment model to use");
         outputFolder = add("OUTPUT_FOLDER", "Output folder", ".", "Output folder for results");
@@ -79,11 +80,12 @@ public class PreferenceManager {
     }
     
     public int getNrAngles() {
-        return nr_angles.getInt();
+        return 16;//nr_angles.getInt();
     }
     /** the angle between measurements */
     public double getAngleDelta() {
-        return 360.0/(double)getNrAngles();
+        //
+        return 22.5;
     }
     private UserPref add(String key, String name, String defaultValue, String description ) {
        

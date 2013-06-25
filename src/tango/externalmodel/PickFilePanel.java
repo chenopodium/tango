@@ -61,6 +61,16 @@ public class PickFilePanel extends javax.swing.JPanel {
         jLabel1.setText("File:");
 
         txtFile.setText("filename");
+        txtFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtFileActionPerformed(evt);
+            }
+        });
+        txtFile.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txtFileFocusLost(evt);
+            }
+        });
 
         jLabel2.setText("Or just enter (or copy paste) the content here (comma separated):");
 
@@ -104,9 +114,17 @@ public class PickFilePanel extends javax.swing.JPanel {
        String txt = ExternalTools.getCsvFile(pref);
        if (txt != null) {
            txtFile.setText(txt);
-            readContent(txt);
+           getText();
        }
     }//GEN-LAST:event_btnOpenActionPerformed
+
+    private void txtFileFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtFileFocusLost
+        getText();
+    }//GEN-LAST:event_txtFileFocusLost
+
+    private void txtFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtFileActionPerformed
+          getText();
+    }//GEN-LAST:event_txtFileActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnOpen;
@@ -130,5 +148,14 @@ public class PickFilePanel extends javax.swing.JPanel {
                 this.jTextArea1.setText(content);
             }
         }
+    }
+
+    public void getText() {
+       String txt = this.txtFile.getText();
+       if (txt != null) {
+          pref.setValue(txt);
+      
+          readContent(txt);
+      }
     }
 }

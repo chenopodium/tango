@@ -27,7 +27,7 @@ public class CorrelationResults {
     }
     
     public void computeCorrelations(Detector detectorA, Detector detectorB) {
-        int buckets =  PreferenceManager.getManager().getNrAngles() + 1;
+        int buckets =  PreferenceManager.getManager().getNrAngles() ;
         correl = new double[buckets][6];
         
         ArrayList<DataPoint> dataA = detectorA.getResults();
@@ -57,7 +57,7 @@ public class CorrelationResults {
         if (tot > 0) {
             Rab = (eq - neq) / (eq + neq);
         } else {
-            err("Not enough data points for " + angle_in_degrees+":"+tot);
+            //err("Not enough data points for " + angle_in_degrees+":"+tot);
         }
 
         return Rab;
@@ -92,16 +92,15 @@ public class CorrelationResults {
         //	p("Adding data point:"+point);
         this.total++;
         this.detected++;
-        
-        
-        if (deg < 0) {
-            deg = deg + 360;
-        }
-
+    
+        deg = Math.abs(deg);
+//        if (deg < 0) {
+//            deg = deg + 360;
+//        }
         // we store the result in buckets of 22.5 degrees - that is more than sufficient
         // but if desired we could of course store more (but typically the test angles are at least 22.5 or even 45
         // degrees apart
-        int bucket = (int) (deg / PreferenceManager.getManager().getAngleDelta());
+        int bucket = this.getBucket(deg);
 
         // one more measurement
         correl[bucket][TOTALNR]++;
@@ -117,51 +116,6 @@ public class CorrelationResults {
         
     }
 
-    public double getCHSH() {
-        double RA1B1 = computeRawCorrelations(Math.abs(Setup.A1 - Setup.B1));
-        double RA1B2 = computeRawCorrelations(Math.abs(Setup.A1 - Setup.B2));
-        double RA2B1 = computeRawCorrelations(Math.abs(Setup.A2 - Setup.B1));
-        double RA2B2 = computeRawCorrelations(Math.abs(Setup.A2 - Setup.B2));
-
-        double chsh = Math.abs(RA1B1 - RA1B2 + RA2B1 + RA2B2);
-        return chsh;
-    }
-
-    /** compute | R(A1, B1) - R(A1, B2) + R(A2, B1) + R(A2, B2) |
-     * Using the angles given for the filters in the Setup class
-     * @return | R(A1, B1) - R(A1, B2) + R(A2, B1) + R(A2, B2) |
-     */
-    public String getCHSHResult() {
-        // the angles in the Setup class are in DEGREES
-        double a1b1  = Math.abs(Setup.A1 - Setup.B1);        
-        double a1b2  = Math.abs(Setup.A1 - Setup.B2);
-        double a2b1  = Math.abs(Setup.A2 - Setup.B1);
-        double a2b2  = Math.abs(Setup.A2 - Setup.B2);
-        
-        double RA1B1 = computeRawCorrelations(a1b1);
-        double RA1B2 = computeRawCorrelations(a1b2);
-        double RA2B1 = computeRawCorrelations(a2b1);
-        double RA2B2 = computeRawCorrelations(a2b2);
-
-        double qA1B1 = computeQmValue(a1b1);
-        double qA1B2 = computeQmValue(a1b2);
-        double qA2B1 = computeQmValue(a2b1);
-        double qA2B2 = computeQmValue(a2b2);
-        
-        double chsh = Math.abs(RA1B1 - RA1B2 + RA2B1 + RA2B2);
-
-        DecimalFormat f = new DecimalFormat("0.00");
-        String res = "Combination, dAngle, QM, RA1B1 \n";
-        res += "A1B1, " + a1b1 + ", "+f.format(qA1B1)+" , " + f.format(RA1B1) + "\n";
-        res += "A1B2, " + a1b2 + ", "+f.format(qA1B2)+ ", " + f.format(RA1B2) + "\n";
-        res += "A2B1, " + a2b1 + ", "+f.format(qA2B1)+", " + f.format(RA2B1) + "\n";
-        res += "A2B2, " + a2b2 + ", "+f.format(qA2B2)+" , " + f.format(RA2B2) + "\n";
-
-        
-        res += "|R(A1B1) - R(A1B2) + R(A2B1) + R(A2B2)|,   " + f.format(chsh);        
-        return res;
-    }
-
     private void err(String msg) {
         System.err.println("CorrelationResult: " + msg);
     }
@@ -172,20 +126,24 @@ public class CorrelationResults {
     
         res += toRawCorrelationString();
         res +=" \n";
-        res += getCHSHResult();
+        
         return res;
     }
     private String toRawCorrelationString() {
         String res = "\nRaw product moment correlation\n\n"
                 + "AngleAB (deg), Rab, eq, neq, total count\n";
-        for (double deg = 0; deg <= 360; deg += PreferenceManager.getManager().getAngleDelta()) {
+        DecimalFormat f = new DecimalFormat("0.000");
+        double delta = PreferenceManager.getManager().getAngleDelta();
+        for (double deg = 0; deg < 360; deg += delta) {
             double rab = computeRawCorrelations(deg);
             int bucket = getBucket(deg);
             // nr of equal spins
             double eq = getEq(bucket);
             // nr of not equal spins
             double neq = getNeq(bucket);
-            res += deg + ", " + rab + ", " + eq + ", " + neq + ", " + (neq + eq) + "\n";
+            if (neq + eq > 0) {
+                res += deg + ", " + f.format(rab) + ",  " + eq + ",  " + neq + ",  " + (neq + eq) + "\n";
+            }
         }
         return res;
     }
@@ -196,10 +154,13 @@ public class CorrelationResults {
      * @return
      */
     public double[][] getCorrelations() {
-
-        double xy[][] = new double[PreferenceManager.getManager().getNrAngles() + 1][2];
+        int nr = PreferenceManager.getManager().getNrAngles() ;
+       // p("Got nr angles: "+nr);
+        double xy[][] = new double[nr+1][2];
         int i = 0;
-        for (double deg = 0; deg <= 360; deg += PreferenceManager.getManager().getAngleDelta()) {
+        double delta = PreferenceManager.getManager().getAngleDelta();
+        //p("Got angle delta: "+delta);
+        for (double deg = 0; deg <= 360; deg +=delta ) {
             double rab = computeRawCorrelations(deg);
             xy[i][0] = deg;
             xy[i][1] = rab;
@@ -209,17 +170,25 @@ public class CorrelationResults {
     }
 
     /** Convert angle in degrees to bucket nr */
-    private int getBucket(double angle_in_degrees) {
+    public int getBucket(double angle_in_degrees) {
         // only positive buckets...
-        if (angle_in_degrees < 0) {
-            angle_in_degrees = angle_in_degrees + 360;
+        angle_in_degrees = Math.abs(angle_in_degrees);
+       
+        if (angle_in_degrees >=360) {
+            angle_in_degrees = angle_in_degrees - 360;
         }
-        int bucket = (int) (angle_in_degrees / PreferenceManager.getManager().getAngleDelta());
+        double delta = PreferenceManager.getManager().getAngleDelta();
+        int bucket = (int) (angle_in_degrees / delta);
+        if (bucket * delta !=angle_in_degrees ) {
+            p("angle="+angle_in_degrees+", delta="+delta+", bucket="+bucket);
+            System.exit(0);
+                    
+        }
         return bucket;
     }
 
     private void p(String msg) {
-        System.out.println("Measurements: " + msg);
+        System.out.println("CorrelationResults: " + msg);
 
     }
 
@@ -249,17 +218,14 @@ public class CorrelationResults {
         return detected;
     }
 
-    private double computeQmValue(double angle) {
-       return -Math.cos(Math.toRadians(angle));
-    }
+   
     
     public void saveResults() {
           
         // now compute and print stats
         String res = toString();
         String filename = "correlations";
-        String path = setup.prefs.getOutputFolder();
-        
+        String path = setup.prefs.getOutputFolder();        
         FileTools.writeStringToFile(new File(path+filename + ".csv"), res, false);
     }
 }

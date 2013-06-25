@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 import tango.experiment.CorrelationResults;
 import tango.experiment.Setup;
+import tango.results.AbstractResult;
 
 /** simple class that draws the correlation result from the experiment */
 public class RabPanel extends JPanel {
@@ -18,13 +19,16 @@ public class RabPanel extends JPanel {
     double xy[][];
     
     boolean tiny;
+    
+    AbstractResult res;
 
-    public RabPanel(CorrelationResults measure) {
-        this(measure, false);
+    public RabPanel(CorrelationResults measure, AbstractResult res) {
+        this(measure, false, res);
     }
-    public RabPanel(CorrelationResults measure, boolean tiny) {
+    public RabPanel(CorrelationResults measure, boolean tiny, AbstractResult res) {
         this.tiny = tiny;
         xy = measure.getCorrelations();
+        this.res = res;
         
     }
 
@@ -98,15 +102,12 @@ public class RabPanel extends JPanel {
         }
         // now draw cosine!
         
-        int xold = 0;
-        double a1b1  = Math.abs(Setup.A1 - Setup.B1);        
-        double a1b2  = Math.abs(Setup.A1 - Setup.B2);
-        double a2b1  = Math.abs(Setup.A2 - Setup.B1);
-        double a2b2  = Math.abs(Setup.A2 - Setup.B2);
-        for (int x = 0; x <= 360; x += 1) {
+        double xold = 0;
+       
+        for (double x = 0; x <= 360; x += 0.5) {
             g.setColor(Color.black);
-            double y = Math.cos(Math.toRadians(x));
-            double yold = Math.cos(Math.toRadians(xold));
+            double y = res.computeValueForAngle(x);
+            double yold = res.computeValueForAngle(xold);
             // scale x from 0 - width
             // scale y from 0 to height
             int guix = (int) (x * dx) + BORDER;
@@ -115,11 +116,11 @@ public class RabPanel extends JPanel {
             int guiyold = (int) (my - yold * dy);
             g.drawOval(guix, guiy, 1, 1);
             g.drawLine(guix, guiy, guixold, guiyold);
-            if (x == a1b2 ) {
+            if (res.hasRedAngle(x) ) {
                 g.setColor(Color.red);
                 g.drawLine(guix, my, guix, guiy);
             }
-            else if (x == a1b1 || x == a2b1 || x == a2b2) {
+            else if (res.hasGreenAngle(x)) {
                 g.setColor(Color.green);
                 g.drawLine(guix, my, guix, guiy);
             }

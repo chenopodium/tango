@@ -5,6 +5,7 @@
 package tango.utils;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
@@ -39,10 +40,11 @@ public class FileTools {
         cc.setVisible(true);
         String[] Ext = new String[]{ext};
         if (ext.indexOf(",") > 0) {
-            Ext = StringTools.parseList(ext, ", ").toArray(Ext);
+            Ext = StringTools.parseList(ext, ",").toArray(Ext);
 
         }
-        ExtensionFileFilter filter1 = new ExtensionFileFilter(Ext[0] + " files", Ext);
+        System.out.println("Ext: "+ Arrays.toString(Ext));
+        ExtensionFileFilter filter1 = new ExtensionFileFilter(Arrays.toString(Ext) + " files", Ext);
         cc.setFileFilter(filter1);
 
         String res = val;

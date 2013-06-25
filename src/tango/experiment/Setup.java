@@ -8,12 +8,6 @@ import tango.prefs.PreferenceManager;
  */
 public class Setup {
 
-    /** Default angles to compute CHSH  */
-    public static double A1 = 0;
-    public static double A2 = 90;
-    public static double B1 = 45;
-    public static double B2 = 135;
-    
     
     PreferenceManager prefs;
     ExperimentModel model;

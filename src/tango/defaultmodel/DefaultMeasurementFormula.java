@@ -24,7 +24,9 @@ public class DefaultMeasurementFormula extends ModelItem implements MeasurementF
         DefaultHiddenVariables vars = (DefaultHiddenVariables) particle.getHiddenVars();
         double theta = vars.getTheta();
         
-        int spin = (int) Math.signum(Math.sin(theta+ detector.getAngleInDegrees()));                
+        double d = theta+ detector.getAngleInDegrees();
+        
+        int spin = (int) Math.signum(Math.sin(Math.toRadians(d)));                
         
         return spin;
      }

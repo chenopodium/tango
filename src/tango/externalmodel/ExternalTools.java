@@ -53,7 +53,7 @@ public class ExternalTools {
     }
 
     public static String getCsvFile(UserPref pref) {
-        return FileTools.getFile(pref.getName(), ".csv", pref.getValue());
+        return FileTools.getFile(pref.getName(), ".csv, .txt", pref.getValue());
     }
 
     public static ArrayList<Double> getListOfValues(UserPref pref, String name) {

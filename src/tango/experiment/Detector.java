@@ -29,7 +29,7 @@ public class Detector {
     public String getResultsAsCsv() {
         String nl = "\n";
         String s = "Results of detector "+this.name+nl;
-        s += "particle nr, timestamp, detected, spin"+nl;
+        s += "particle nr, timestamp, detected, detector angle, spin"+nl;
         if (results == null) {
             s="No results yet";
             return s;

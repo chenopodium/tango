@@ -186,7 +186,7 @@ public class TangoFrame extends javax.swing.JFrame {
             public void run() {
                 TangoFrame f = new TangoFrame();
                 //f.setVisible(true);
-                f.setSize(new Dimension(1100, 820));
+                f.setSize(new Dimension(920, 700));
                 f.setVisible(true);
             }
         });

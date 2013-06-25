@@ -8,10 +8,12 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,10 +23,16 @@ import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -42,6 +50,9 @@ import tango.experiment.ModelItemIF;
 import tango.experiment.Setup;
 import tango.guiutils.GuiUtils;
 import tango.prefs.PreferenceManager;
+import tango.results.AbstractResult;
+import tango.results.CHSHResult;
+import tango.results.QRCResult;
 import tango.utils.ErrorHandler;
 import tango.utils.FileTools;
 import tango.utils.RandomUtils;
@@ -59,9 +70,10 @@ public class ExperimentPanel extends javax.swing.JPanel {
     private int times;
     private Setup setup = Setup.getSetup();
     private PreferenceManager prefs = PreferenceManager.getManager();
-    private CorrelationResults result;
+    private CorrelationResults correlations;
     private DecimalFormat f = new DecimalFormat("#.##");
     private JPanel detailPanel;
+    private ArrayList<AbstractResult> results;
 
     /**
      * Creates new form ExperimentPanel
@@ -74,7 +86,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
         ToolTipManager.sharedInstance().setDismissDelay(10000);
         this.rabContainer.setLayout(new BorderLayout());
         times = prefs.times.getInt();
-        
+
         restart();
 
     }
@@ -98,8 +110,10 @@ public class ExperimentPanel extends javax.swing.JPanel {
     }
 
     private void updateGUI() {
-        if (result != null) {
-            this.lblCHSH.setText("CHSH: " + f.format(result.getCHSH()));
+
+        if (correlations != null) {
+
+            this.lblCHSH.setText("CHSH: " + f.format(results.get(0).computeValue()));
         } else {
             this.lblCHSH.setText("CHSH: no result yet");
         }
@@ -141,16 +155,16 @@ public class ExperimentPanel extends javax.swing.JPanel {
         this.btnSeed1.setToolTipText("" + prefs.getSeed());
         this.lblCountA.setToolTipText("Number of detected particles");
         this.lblCountB.setToolTipText("Number of detected particles");
-        if (result != null) {
-
-            this.lblCHSH.setText("CHSH: " + f.format(result.getCHSH()));
-            RabPanel chart = new RabPanel(result);
+        if (correlations != null) {
+            AbstractResult res = results.get(0);
+            this.lblCHSH.setText(res.getName() + " " + f.format(res.computeValue()));
+            RabPanel chart = new RabPanel(correlations, results.get(0));
             detailPanel.removeAll();
             detailPanel.add("Center", chart);
 
             rabContainer.removeAll();
 
-            RabPanel tiny = new RabPanel(result, true);
+            RabPanel tiny = new RabPanel(correlations, true, res);
             rabContainer.add("Center", tiny);
 
             rabContainer.invalidate();
@@ -165,35 +179,17 @@ public class ExperimentPanel extends javax.swing.JPanel {
     }
 
     public void showChart() {
-        if (result == null || result.getTotal() <1) {
+        if (correlations == null || correlations.getTotal() < 1) {
             JOptionPane.showMessageDialog(this, "Run the experiment first");
             return;
         }
-        RabPanel chart = new RabPanel(result);
-        chart.setSize(800, 800);
-        chart.setMaximumSize(new Dimension(800, 800));
-
-
-        ResultsPanel.show(result);
-
-        // save image to file
-        String filename = "correlation_chart.png";
-        String path = prefs.getOutputFolder();
-        BufferedImage img = chart.getImage(1000, 1000);
-        try {
-            ImageIO.write(img, ".png", new File(path + filename));
-        } catch (IOException ex) {
-            Logger.getLogger(ExperimentPanel.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        p("Wrote image " + path + filename);
-
+        this.showCorr();
 
     }
 
-    
     public void runExperiment() {
 
-        
+
         detectorA.resetData();
         detectorB.resetData();
         for (int t = 0; t < times; t++) {
@@ -203,11 +199,31 @@ public class ExperimentPanel extends javax.swing.JPanel {
             }
         }
 
-        result = new CorrelationResults();
-        result.computeCorrelations(detectorA, detectorB);
-        result.saveResults();
+        correlations = new CorrelationResults();
+        correlations.computeCorrelations(detectorA, detectorB);
+        correlations.saveResults();
 
-        result.getCHSH();
+
+        results = new ArrayList<AbstractResult>();
+        CHSHResult chsh = new CHSHResult(correlations);
+        QRCResult qrc = new QRCResult(correlations);
+        results.add(chsh);
+        results.add(qrc);
+        for (AbstractResult res: results) {
+            String filename = "results_"+res.getId();
+            String path = prefs.getOutputFolder();
+            FileTools.writeStringToFile(new File(path + filename + ".csv"), res.getStringResult(), false);
+        }
+
+        String msg = detectorA.getResultsAsCsv();
+        String filename = "results_detector_a";
+        String path = prefs.getOutputFolder();
+        FileTools.writeStringToFile(new File(path + filename + ".csv"), msg, false);
+
+        msg = detectorB.getResultsAsCsv();
+        filename = "results_detector_b";
+        path = prefs.getOutputFolder();
+        FileTools.writeStringToFile(new File(path + filename + ".csv"), msg, false);
         updateGUI();
 
     }
@@ -268,7 +284,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnLHVModelActionPerformed(evt);
             }
         });
-        add(btnLHVModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(470, 150, 120, 40));
+        add(btnLHVModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(380, 120, 120, 40));
 
         btnResultsDB.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnResultsDB.setText("Results B");
@@ -277,7 +293,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnResultsDBActionPerformed(evt);
             }
         });
-        add(btnResultsDB, new org.netbeans.lib.awtextra.AbsoluteConstraints(830, 630, -1, 30));
+        add(btnResultsDB, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 530, -1, 30));
 
         btnResultsA.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnResultsA.setText("Results A");
@@ -286,7 +302,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnResultsAActionPerformed(evt);
             }
         });
-        add(btnResultsA, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 630, -1, 30));
+        add(btnResultsA, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 530, -1, 30));
 
         btnDetectorB.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnDetectorB.setText("Detector B");
@@ -295,7 +311,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnDetectorBActionPerformed(evt);
             }
         });
-        add(btnDetectorB, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 45, -1, -1));
+        add(btnDetectorB, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 40, -1, -1));
 
         btnMeasurementA.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnMeasurementA.setText("Formula A");
@@ -304,7 +320,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnMeasurementAActionPerformed(evt);
             }
         });
-        add(btnMeasurementA, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 480, -1, 30));
+        add(btnMeasurementA, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 400, -1, 30));
 
         btnRun.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnRun.setText("Run");
@@ -315,7 +331,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnRunActionPerformed(evt);
             }
         });
-        add(btnRun, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 300, 100, 80));
+        add(btnRun, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 250, 100, 80));
 
         btnSeed.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         btnSeed.setText("Random Seed");
@@ -324,7 +340,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnSeedActionPerformed(evt);
             }
         });
-        add(btnSeed, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 200, 120, -1));
+        add(btnSeed, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 170, 120, -1));
 
         btnCorrelations.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnCorrelations.setText("Correlations");
@@ -333,7 +349,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnCorrelationsActionPerformed(evt);
             }
         });
-        add(btnCorrelations, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 700, -1, 30));
+        add(btnCorrelations, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 590, -1, 30));
 
         btnTimes.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnTimes.setText("# Pairs");
@@ -342,7 +358,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnTimesActionPerformed(evt);
             }
         });
-        add(btnTimes, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 100, 90, -1));
+        add(btnTimes, new org.netbeans.lib.awtextra.AbsoluteConstraints(390, 80, 90, -1));
 
         btnDetectorA.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnDetectorA.setText("Detector A");
@@ -351,7 +367,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnDetectorAActionPerformed(evt);
             }
         });
-        add(btnDetectorA, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 50, -1, -1));
+        add(btnDetectorA, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 40, -1, -1));
 
         btnMeasurementB.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         btnMeasurementB.setText("Formula B");
@@ -360,7 +376,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnMeasurementBActionPerformed(evt);
             }
         });
-        add(btnMeasurementB, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 480, -1, 30));
+        add(btnMeasurementB, new org.netbeans.lib.awtextra.AbsoluteConstraints(680, 400, -1, 30));
 
         btnSeed1.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         btnSeed1.setText("Random Seed");
@@ -369,7 +385,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnSeed1ActionPerformed(evt);
             }
         });
-        add(btnSeed1, new org.netbeans.lib.awtextra.AbsoluteConstraints(940, 200, 120, -1));
+        add(btnSeed1, new org.netbeans.lib.awtextra.AbsoluteConstraints(770, 180, 120, -1));
 
         btnAnglesA.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         btnAnglesA.setText("Angles A");
@@ -378,7 +394,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnAnglesAActionPerformed(evt);
             }
         });
-        add(btnAnglesA, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 100, 90, -1));
+        add(btnAnglesA, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 90, -1));
 
         btnAnglesB.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         btnAnglesB.setText("Angles B");
@@ -387,7 +403,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
                 btnAnglesBActionPerformed(evt);
             }
         });
-        add(btnAnglesB, new org.netbeans.lib.awtextra.AbsoluteConstraints(950, 100, 90, -1));
+        add(btnAnglesB, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 80, 90, -1));
 
         rabContainer.setToolTipText("Click to see a larger chart");
         rabContainer.setOpaque(false);
@@ -407,51 +423,51 @@ public class ExperimentPanel extends javax.swing.JPanel {
         });
         rabContainer.add(btnChart);
 
-        add(rabContainer, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 470, 180, 110));
+        add(rabContainer, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 400, 150, 90));
 
         lblFormulaB.setText("formula b");
-        add(lblFormulaB, new org.netbeans.lib.awtextra.AbsoluteConstraints(820, 510, 170, -1));
+        add(lblFormulaB, new org.netbeans.lib.awtextra.AbsoluteConstraints(690, 430, 170, -1));
 
         lblSeed1.setText("seed1");
-        add(lblSeed1, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 230, 60, -1));
+        add(lblSeed1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 200, 60, -1));
 
         lblNrPairs.setText("nrpairs");
-        add(lblNrPairs, new org.netbeans.lib.awtextra.AbsoluteConstraints(500, 80, 90, -1));
+        add(lblNrPairs, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 60, 90, -1));
 
         lblFormulaA.setText("formula a");
-        add(lblFormulaA, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 510, 180, -1));
+        add(lblFormulaA, new org.netbeans.lib.awtextra.AbsoluteConstraints(120, 430, 180, -1));
 
         lblSeed2.setText("seed2");
-        add(lblSeed2, new org.netbeans.lib.awtextra.AbsoluteConstraints(980, 230, 90, -1));
+        add(lblSeed2, new org.netbeans.lib.awtextra.AbsoluteConstraints(810, 210, 90, -1));
 
         lblAnglesA.setText("angles A");
-        add(lblAnglesA, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 80, 180, -1));
+        add(lblAnglesA, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 60, 180, -1));
 
         lblAnglesB.setText("lblAnglesB");
-        add(lblAnglesB, new org.netbeans.lib.awtextra.AbsoluteConstraints(950, 80, 130, -1));
+        add(lblAnglesB, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 60, 130, -1));
 
         lblCountA.setText("6758");
-        add(lblCountA, new org.netbeans.lib.awtextra.AbsoluteConstraints(180, 380, 40, 20));
+        add(lblCountA, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 330, 40, 20));
 
         lblCountB.setText("3994");
-        add(lblCountB, new org.netbeans.lib.awtextra.AbsoluteConstraints(860, 380, 40, 20));
+        add(lblCountB, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 330, 40, 20));
 
         lblEffA.setText("98%   ");
-        add(lblEffA, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 270, 60, 20));
+        add(lblEffA, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 240, 60, 20));
 
         lblEffB.setText("98%   ");
-        add(lblEffB, new org.netbeans.lib.awtextra.AbsoluteConstraints(850, 270, 70, 20));
+        add(lblEffB, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 240, 70, 20));
 
         lblCHSH.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         lblCHSH.setText("CHSH = 1.987");
-        add(lblCHSH, new org.netbeans.lib.awtextra.AbsoluteConstraints(490, 680, 110, 20));
+        add(lblCHSH, new org.netbeans.lib.awtextra.AbsoluteConstraints(400, 570, 110, 20));
 
         lblLhvModel.setText("tango.hiddenvars.ChantalsModel");
-        add(lblLhvModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 190, 180, -1));
+        add(lblLhvModel, new org.netbeans.lib.awtextra.AbsoluteConstraints(370, 160, 180, -1));
 
-        imageLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/experimentnotext1.png"))); // NOI18N
+        imageLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource("/resources/experimentnotext_600.png"))); // NOI18N
         imageLabel.setText("98%");
-        add(imageLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 1060, -1));
+        add(imageLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 30, 900, -1));
 
         tool.setRollover(true);
 
@@ -607,7 +623,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_btnChartActionPerformed
 
     private void toolNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolNewActionPerformed
-       restart();
+        restart();
     }//GEN-LAST:event_toolNewActionPerformed
 
     private void toolHelpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolHelpActionPerformed
@@ -615,21 +631,20 @@ public class ExperimentPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_toolHelpActionPerformed
 
     private void toolModelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolModelActionPerformed
-       pickModel();
+        pickModel();
     }//GEN-LAST:event_toolModelActionPerformed
 
     private void toolChartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolChartActionPerformed
-       showChart();
+        showChart();
     }//GEN-LAST:event_toolChartActionPerformed
 
     private void toolRunActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolRunActionPerformed
-       runExperiment();
+        runExperiment();
     }//GEN-LAST:event_toolRunActionPerformed
 
     private void toolChart1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toolChart1ActionPerformed
-       this.showCorr();
+        this.showCorr();
     }//GEN-LAST:event_toolChart1ActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAnglesA;
     private javax.swing.JButton btnAnglesB;
@@ -771,10 +786,10 @@ public class ExperimentPanel extends javax.swing.JPanel {
     }
 
     public void help() {
-         String msg = "<html><ul>";
+        String msg = "<html><ul>";
         msg += "<li>Click on the various buttons to change the settings</li>";
         msg += "<li>Click run to run the experiment</li>";
-        
+
         msg += "<li>To see a larger version of the chart, click on the chart</li>";
         msg += "<li>Check the output folder for results</li>";
         msg += "<li>Mouse over the buttons and labels to see tool tip text</li>";
@@ -783,8 +798,68 @@ public class ExperimentPanel extends javax.swing.JPanel {
     }
 
     public void showCorr() {
-        if (result != null) {
-            GuiUtils.msg(result.toString());
+        if (correlations != null) {
+            JPanel panres = new JPanel();
+            panres.setLayout(new BorderLayout());
+            JTabbedPane tab = new JTabbedPane();
+            panres.add("Center", tab);
+
+            JPanel panraw = new JPanel();
+            panraw.setLayout(new BorderLayout());
+            JTextArea txt = new JTextArea();
+            txt.setText(correlations.toString());
+            txt.setColumns(50);
+            txt.setRows(20);
+            panraw.add("Center", new JScrollPane(txt));
+
+
+            for (AbstractResult res : results) {
+                JPanel pan = new JPanel();
+                pan.setLayout(new BorderLayout());
+                txt = new JTextArea();
+                txt.setText(res.toString());
+                txt.setColumns(50);
+                txt.setRows(10);
+
+                JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+
+
+                //pan.add("South", new JScrollPane(txt));
+                ResultsPanel rp = new ResultsPanel(correlations, res);
+                rp.setSize(600, 400);
+                rp.setMinimumSize(new Dimension(600, 400));
+                split.add(new JScrollPane(rp));
+                split.add(new JScrollPane(txt));
+                split.setDividerLocation(500);
+                //pan.add("Center", rp);
+
+                tab.addTab(res.getName(), split);
+
+                RabPanel chart1 = new RabPanel(correlations, res);
+                chart1.setSize(800, 800);
+                chart1.setMaximumSize(new Dimension(800, 800));
+
+                // save image to file
+                String filename = "correlation_chart_" + res.getName() + ".png";
+                String path = prefs.getOutputFolder()+"/";
+                BufferedImage img = chart1.getImage(800, 800);
+                try {
+                    ImageIO.write(img, ".png", new File(path + filename));
+                } catch (IOException ex) {
+                    Logger.getLogger(ExperimentPanel.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            tab.addTab("Raw correlations", panraw);
+          
+            JFrame f = new JFrame();
+            f.setSize(900, 900);
+            final JDialog newdialog = new JDialog(f, "Results", false);
+            newdialog.setLocation(400, 100);
+            newdialog.setSize(900, 900);
+            newdialog.getContentPane().add(panres);;
+            newdialog.setAlwaysOnTop(true);
+            newdialog.setVisible(true);
+
         } else {
             GuiUtils.msg("No results yet - run the experiment first");
         }

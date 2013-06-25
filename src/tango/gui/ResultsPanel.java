@@ -3,33 +3,26 @@ package tango.gui;
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import tango.experiment.CorrelationResults;
+import tango.results.AbstractResult;
 
 /**
  * simple class that draws the correlation result from the experiment
  */
 public class ResultsPanel extends JPanel {
 
-    private CorrelationResults measure;
-
-    public ResultsPanel(CorrelationResults measure) {
-        this.measure = measure;
+    public ResultsPanel(CorrelationResults measure, AbstractResult res) {
         setLayout(new BorderLayout());
-        add("Center", new RabPanel(measure));
-    }
+        RabPanel p = new RabPanel(measure, res);
 
-    public static void show(CorrelationResults measure) {
-
-        JFrame f = new JFrame();
-        RabPanel p = new RabPanel(measure);
-
-        f.getContentPane().add(new JScrollPane(p));
-        f.pack();
-        p.setSize(600, 600);
-        f.setSize(600, 600);
-
-        f.show();
+        JPanel pan = new JPanel();
+        pan.setLayout(new BorderLayout());
+        pan.add("Center", new JScrollPane(p));
+        pan.add("North", new JLabel(res.getName() + ": " + res.getDescription()));
+        pan.add("South", new JLabel("Experiment result: " + res.computeValue()));
+        add("Center", pan);
     }
 }
