@@ -4,6 +4,8 @@
  */
 package tango.experiment;
 
+import tango.models.ModelItem;
+
 /**
  *
  * @author Chantal

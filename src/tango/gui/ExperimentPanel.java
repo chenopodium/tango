@@ -27,7 +27,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.ToolTipManager;
-import tango.defaultmodel.DefaultExperimentModel;
+import tango.models.def.DefaultExperimentModel;
 import tango.experiment.AngleGeneratorIF;
 import tango.experiment.CorrelationResults;
 import tango.experiment.Detector;
@@ -35,8 +35,8 @@ import tango.experiment.DetectorEfficiencyIF;
 import tango.experiment.Experiment;
 import tango.experiment.ExperimentModel;
 import tango.experiment.MeasurementFormulaIF;
-import tango.experiment.ModelFactory;
-import tango.experiment.ModelItemIF;
+import tango.models.ModelFactory;
+import tango.models.ModelItemIF;
 import tango.experiment.Setup;
 import tango.guiutils.GuiUtils;
 import tango.prefs.PreferenceManager;
@@ -725,11 +725,13 @@ public class ExperimentPanel extends javax.swing.JPanel {
 
     private void setSeed() {
         String ans = JOptionPane.showInputDialog(this, "Enter an integer to set random seed", prefs.seed.getValue());
-        try {
-            int nr = Integer.parseInt(ans);
-            prefs.setSeed(nr);
-        } catch (Exception e) {
-            ErrorHandler.showError("Could not convert " + ans + " to a seed (integer)");
+        if (ans != null && ans.length() >0 ){
+            try {
+                int nr = Integer.parseInt(ans);
+                prefs.setSeed(nr);
+            } catch (Exception e) {
+                ErrorHandler.showError("Could not convert " + ans + " to a seed (integer)");
+            }
         }
     }
 
@@ -761,7 +763,10 @@ public class ExperimentPanel extends javax.swing.JPanel {
     private void pickMeasurement(Detector detector) {
         String msg = " the measurement class for " + detector.getName();
         MeasurementFormulaIF res = (MeasurementFormulaIF) pickItem(ModelFactory.getPossibleMeasurementFormulas(this.experiment), model.getMeasurementFormula(), msg);
-        //model.setMeasurementFormula(res);        
+        //model.setMeasurementFormula(res); 
+        
+        res.check();
+                
         detector.setMeasurementFormula(res);
         res.init();
         // init formula

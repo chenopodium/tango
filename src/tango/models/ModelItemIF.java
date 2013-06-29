@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.experiment;
+package tango.models;
 
 /**
  *
@@ -12,6 +12,8 @@ public interface ModelItemIF {
     public String getKey() ;
    
     public String getName();
+    
+    public void check();
 
     public void init();
    

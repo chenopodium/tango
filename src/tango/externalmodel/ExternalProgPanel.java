@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.externalmodel;
+package tango.models.external;
 
 import java.io.File;
-import tango.defaultmodel.DefaultHiddenVariables;
+import tango.models.def.DefaultHiddenVariables;
 import tango.prefs.UserPref;
 import tango.utils.Executor;
 import tango.utils.FileTools;

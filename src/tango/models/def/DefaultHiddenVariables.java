@@ -2,11 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.defaultmodel;
+package tango.models.def;
 
 import tango.experiment.Particle;
 import tango.experiment.HiddenVariablesIF;
-import tango.experiment.ModelItem;
+import tango.models.ModelItem;
 import tango.utils.RandomUtils;
 
 /**

@@ -2,11 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.bryansmodel;
+package tango.models.bryan;
 
+import javax.swing.JOptionPane;
 import tango.experiment.Detector;
 import tango.experiment.MeasurementFormulaIF;
-import tango.experiment.ModelItem;
+import tango.models.ModelItem;
 import tango.experiment.Particle;
 import tango.utils.RandomUtils;
 
@@ -15,14 +16,28 @@ import tango.utils.RandomUtils;
  * @author Chantal
  */
 public class BryansMeasurementFormula extends ModelItem implements MeasurementFormulaIF {
-     
+
+    private boolean errorshown;
+
     public BryansMeasurementFormula() {
         super("BRYAN", "Bryans formula", "Based on the 2D spin model");
+    }
+
+    public void check() {
+       JOptionPane.showMessageDialog(null, "Bryans Measurement also requires Bryans Hidden Variables :-). I suggest you just pick Bryans model with the LHV button");
+            
     }
 
     @Override
     public int measure(Detector detector, Particle particle) {
 
+        if (!(particle.getHiddenVars() instanceof BryansHiddenVariables)) {
+            if (!errorshown) {
+                JOptionPane.showMessageDialog(null, "Bryans Measurement also requires Bryans Hidden Variables :-). Can you please pick the model with the LHV button?");
+            }
+            errorshown = true;
+            return 0;
+        }
         BryansHiddenVariables hiddenVars = (BryansHiddenVariables) particle.getHiddenVars();
         double vars[] = hiddenVars.getVars();
 

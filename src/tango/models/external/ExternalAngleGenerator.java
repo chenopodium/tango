@@ -2,12 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.externalmodel;
+package tango.models.external;
 
 import java.util.ArrayList;
 import tango.experiment.AngleGeneratorIF;
 import tango.experiment.DetectorEfficiencyIF;
-import tango.experiment.ModelItem;
+import tango.models.ModelItem;
 import tango.guiutils.GuiUtils;
 import tango.prefs.PreferenceManager;
 import tango.utils.ErrorHandler;

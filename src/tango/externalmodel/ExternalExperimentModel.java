@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.externalmodel;
+package tango.models.external;
 
 import tango.experiment.Experiment;
 import tango.experiment.ExperimentModel;

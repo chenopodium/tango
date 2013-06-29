@@ -2,11 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.defaultmodel;
+package tango.models.def;
 
 import tango.experiment.Detector;
 import tango.experiment.DetectorEfficiencyIF;
-import tango.experiment.ModelItem;
+import tango.models.ModelItem;
 import tango.experiment.Particle;
 
 /**
@@ -16,6 +16,10 @@ import tango.experiment.Particle;
 public class DefaultDetectorEfficiency extends ModelItem implements DetectorEfficiencyIF {
     
 
+     public DefaultDetectorEfficiency(String key, String name, String desc) {
+        super(key, name, desc);
+    }
+     
     public DefaultDetectorEfficiency() {
         super("DEFAULT", "Default 100% efficiency", "Detects all events");
     }

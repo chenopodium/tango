@@ -2,7 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.experiment;
+package tango.models;
+
+import tango.experiment.Experiment;
 
 /**
  *
@@ -22,13 +24,18 @@ public class ModelItem implements ModelItemIF{
         this.description = description;
         
     }
+    public void check(){
+        // add checks if needed to make sure the model and classes are consistent
+    }
     
+    @Override
     public void init() {
     }
 
     /**
      * @return the key
      */
+    @Override
     public String getKey() {
         return key;
     }

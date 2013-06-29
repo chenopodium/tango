@@ -2,12 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.dummymodel;
+package tango.models.dummy;
 
 import javax.swing.JOptionPane;
 import tango.experiment.Detector;
 import tango.experiment.DetectorEfficiencyIF;
-import tango.experiment.ModelItem;
+import tango.models.ModelItem;
 import tango.experiment.Particle;
 import tango.guiutils.GuiUtils;
 import tango.utils.RandomUtils;

@@ -2,19 +2,19 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.externalmodel;
+package tango.models.external;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.JOptionPane;
-import tango.defaultmodel.DefaultHiddenVariables;
+import tango.models.def.DefaultHiddenVariables;
 import tango.experiment.Detector;
 import tango.experiment.DetectorEfficiencyIF;
 import tango.experiment.Experiment;
 import tango.experiment.ExperimentModel;
 import tango.experiment.HiddenVariablesIF;
-import tango.experiment.ModelItem;
+import tango.models.ModelItem;
 import tango.experiment.Particle;
 import tango.prefs.PreferenceManager;
 import tango.prefs.UserPref;

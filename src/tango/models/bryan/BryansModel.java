@@ -2,12 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.bryansmodel;
+package tango.models.bryan;
 
-import tango.defaultmodel.DefaultAngleGenerator;
-import tango.defaultmodel.DefaultDetectorEfficiency;
-import tango.defaultmodel.DefaultHiddenVariables;
-import tango.defaultmodel.DefaultMeasurementFormula;
+import tango.models.def.DefaultAngleGenerator;
+import tango.models.def.DefaultDetectorEfficiency;
+import tango.models.def.DefaultHiddenVariables;
+import tango.models.def.DefaultMeasurementFormula;
 import tango.experiment.ExperimentModel;
 import tango.experiment.HiddenVariablesIF;
 import tango.experiment.Particle;

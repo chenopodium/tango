@@ -2,23 +2,33 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.experiment;
+package tango.models;
 
 import java.util.ArrayList;
-import tango.bryansmodel.BryansMeasurementFormula;
-import tango.bryansmodel.BryansModel;
-import tango.chantalsmodel.ChantalsDetectorEfficiency;
-import tango.chantalsmodel.ChantalsMeasurementFormula;
-import tango.chantalsmodel.ChantalsModel;
-import tango.defaultmodel.DefaultAngleGenerator;
-import tango.defaultmodel.DefaultDetectorEfficiency;
-import tango.defaultmodel.DefaultExperimentModel;
-import tango.defaultmodel.DefaultMeasurementFormula;
-import tango.externalmodel.ExternalAngleGenerator;
-import tango.externalmodel.ExternalDetectorEfficiency;
-import tango.externalmodel.ExternalExperimentModel;
-import tango.externalmodel.ExternalMeasurementFormula;
+import tango.experiment.AngleGeneratorIF;
+import tango.experiment.DetectorEfficiencyIF;
+import tango.experiment.Experiment;
+import tango.experiment.ExperimentModel;
+import tango.experiment.MeasurementFormulaIF;
+import tango.models.bryan.BryansMeasurementFormula;
+import tango.models.bryan.BryansModel;
+import tango.models.chantal.ChantalsDetectorEfficiency;
+import tango.models.chantal.ChantalsMeasurementFormula;
+import tango.models.chantal.ChantalsModel;
+import tango.models.def.DefaultAngleGenerator;
+import tango.models.def.DefaultDetectorEfficiency;
+import tango.models.def.DefaultExperimentModel;
+import tango.models.def.DefaultMeasurementFormula;
+import tango.models.external.ExternalAngleGenerator;
+import tango.models.external.ExternalDetectorEfficiency;
+import tango.models.external.ExternalExperimentModel;
+import tango.models.external.ExternalMeasurementFormula;
 import tango.guiutils.GuiUtils;
+import tango.mikesmodel.MikesAngleGenerator;
+import tango.mikesmodel.MikesDetectorEfficiency;
+import tango.mikesmodel.MikesExperimentModel;
+import tango.mikesmodel.MikesMeasurementFormula;
+import tango.models.dummy.DummyDetectorEfficiency;
 
 /**
  *
@@ -40,6 +50,7 @@ public class ModelFactory {
         models.add(new DefaultExperimentModel());
         models.add(new ChantalsModel());
         models.add(new BryansModel());
+        models.add(new MikesExperimentModel());
         models.add(new ExternalExperimentModel(exp));
         return models;
     }
@@ -48,6 +59,8 @@ public class ModelFactory {
         eff.add(new DefaultDetectorEfficiency());
         eff.add(new ChantalsDetectorEfficiency());
         eff.add(new ExternalDetectorEfficiency(exp));
+        eff.add(new MikesDetectorEfficiency());
+        eff.add(new DummyDetectorEfficiency());
         return eff;        
     }
     public static ArrayList<MeasurementFormulaIF> getPossibleMeasurementFormulas(Experiment exp) {
@@ -55,12 +68,14 @@ public class ModelFactory {
         form.add(new DefaultMeasurementFormula());
         form.add(new ChantalsMeasurementFormula());
         form.add(new BryansMeasurementFormula());
+        form.add(new MikesMeasurementFormula());
         form.add(new ExternalMeasurementFormula(exp));
         return form;
     }
      public static ArrayList<AngleGeneratorIF> getPossibleAngleGenerators() {
         ArrayList<AngleGeneratorIF> ang = new ArrayList<AngleGeneratorIF> ();
         ang.add(new DefaultAngleGenerator());
+        ang.add(new MikesAngleGenerator());
         ang.add(new ExternalAngleGenerator());        
         return ang;
     }

@@ -2,12 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.externalmodel;
+package tango.models.external;
 
 import java.util.prefs.Preferences;
 import tango.experiment.Particle;
 import tango.experiment.HiddenVariablesIF;
-import tango.experiment.ModelItem;
+import tango.models.ModelItem;
 import tango.prefs.PreferenceManager;
 import tango.utils.FileTools;
 

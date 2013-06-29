@@ -1,5 +1,7 @@
 package tango.experiment;
 
+import tango.models.ModelItemIF;
+
 /**
  *
  * @author Chantal Roth

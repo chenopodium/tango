@@ -2,11 +2,11 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.chantalsmodel;
+package tango.models.chantal;
 
-import tango.defaultmodel.DefaultAngleGenerator;
-import tango.defaultmodel.DefaultHiddenVariables;
-import tango.defaultmodel.DefaultMeasurementFormula;
+import tango.models.def.DefaultAngleGenerator;
+import tango.models.def.DefaultHiddenVariables;
+import tango.models.def.DefaultMeasurementFormula;
 import tango.experiment.ExperimentModel;
 import tango.experiment.HiddenVariablesIF;
 

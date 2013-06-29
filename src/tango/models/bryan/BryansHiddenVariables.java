@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.bryansmodel;
+package tango.models.bryan;
 
-import tango.defaultmodel.DefaultHiddenVariables;
+import tango.models.def.DefaultHiddenVariables;
 
 /**
  *
