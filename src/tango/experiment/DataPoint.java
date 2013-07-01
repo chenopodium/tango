@@ -30,7 +30,12 @@ public class DataPoint {
 
     @Override
      public String toString() {
-        return timestamp+", "+detected+", "+ angle_deg+", "+getSpin();
+        return toStringBuilder().toString();
+    }
+    
+    
+     public StringBuilder toStringBuilder() {
+        return new StringBuilder().append(timestamp).append(", ").append(detected).append(", ").append( angle_deg).append(", ").append(getSpin());
     }
 
     /**

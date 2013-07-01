@@ -130,8 +130,9 @@ public class CorrelationResults {
         return res;
     }
     private String toRawCorrelationString() {
-        String res = "\nRaw product moment correlation\n\n"
-                + "AngleAB (deg), Rab, eq, neq, total count\n";
+        StringBuilder s = new StringBuilder();
+        
+        s=s.append("\nRaw product moment correlation\n\nAngleAB (deg), Rab, eq, neq, total count\n");
         DecimalFormat f = new DecimalFormat("0.000");
         double delta = PreferenceManager.getManager().getAngleDelta();
         for (double deg = 0; deg < 360; deg += delta) {
@@ -142,10 +143,10 @@ public class CorrelationResults {
             // nr of not equal spins
             double neq = getNeq(bucket);
             if (neq + eq > 0) {
-                res += deg + ", " + f.format(rab) + ",  " + eq + ",  " + neq + ",  " + (neq + eq) + "\n";
+                s = s.append(deg).append(", ").append(f.format(rab)).append(",  ").append( eq).append( ",  ").append( neq ).append(",  ").append( (neq + eq) ).append("\n");
             }
         }
-        return res;
+        return s.toString();
     }
 
     /** returns x/y coordintaes for a plot to draw the correlations
