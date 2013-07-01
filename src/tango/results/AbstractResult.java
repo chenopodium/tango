@@ -48,7 +48,7 @@ public abstract class AbstractResult {
     public double getNeq(double angle_deg) {
         int bucket = corr.getBucket(angle_deg);
         double res = corr.getNeq(bucket);
-        p("getEq("+angle_deg+ ") -> b="+bucket+", value="+res);
+        p("getNeq("+angle_deg+ ") -> b="+bucket+", value="+res);
         return res;
     }
     @Override

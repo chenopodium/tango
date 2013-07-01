@@ -175,16 +175,11 @@ public class CorrelationResults {
         // only positive buckets...
         angle_in_degrees = Math.abs(angle_in_degrees);
        
-        if (angle_in_degrees >=360) {
-            angle_in_degrees = angle_in_degrees - 360;
-        }
+        angle_in_degrees = angle_in_degrees % 360;
+        
         double delta = PreferenceManager.getManager().getAngleDelta();
-        int bucket = (int) (angle_in_degrees / delta);
-        if (bucket * delta !=angle_in_degrees ) {
-            p("angle="+angle_in_degrees+", delta="+delta+", bucket="+bucket);
-            System.exit(0);
-                    
-        }
+        int bucket = (int) (angle_in_degrees / delta + 0.5) % correl.length;
+                   
         return bucket;
     }
 
