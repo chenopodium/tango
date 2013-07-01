@@ -56,7 +56,8 @@ public class ExperimentPanel extends javax.swing.JPanel {
     private Experiment experiment;
     private Detector detectorA;
     private Detector detectorB;
-    private int times;    
+    private int times;
+    private Setup setup = Setup.getSetup();
     private PreferenceManager prefs = PreferenceManager.getManager();
     private CorrelationResults correlations;
     private DecimalFormat f = new DecimalFormat("#.##");
@@ -194,7 +195,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
         detectorB.resetData();
         for (int t = 0; t < times; t++) {
             experiment.runOnce();
-            if (t % 1000 == 0) {
+            if (t % 100 == 0) {
                 updateGUI();
             }
         }
@@ -215,7 +216,8 @@ public class ExperimentPanel extends javax.swing.JPanel {
             FileTools.writeStringToFile(new File(path + filename + ".csv"), res.getStringResult(), false);
         }
 
-        String msg = detectorA.getResultsAsCsv();
+/*
+ * String msg = detectorA.getResultsAsCsv();
         String filename = "results_detector_a";
         String path = prefs.getOutputFolder();
         FileTools.writeStringToFile(new File(path + filename + ".csv"), msg, false);
@@ -224,9 +226,9 @@ public class ExperimentPanel extends javax.swing.JPanel {
         filename = "results_detector_b";
         path = prefs.getOutputFolder();
         FileTools.writeStringToFile(new File(path + filename + ".csv"), msg, false);
-        updateGUI();
+*/
 
-        showCorr();
+        updateGUI();
     }
 
     /**

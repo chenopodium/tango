@@ -28,18 +28,18 @@ public class Detector {
    
     public String getResultsAsCsv() {
         String nl = "\n";
-        StringBuilder s = new StringBuilder();
-        s=s.append("Results of detector "+this.name+nl);
-        s=s.append("particle nr, timestamp, detected, detector angle, spin"+nl);
-        if (results == null) {            
-            return "No results yet";
+        String s = "Results of detector "+this.name+nl;
+        s += "particle nr, timestamp, detected, detector angle, spin"+nl;
+        if (results == null) {
+            s="No results yet";
+            return s;
         }
         int count = 0;
         for (DataPoint dp: results) {
             count++;
-            s= s.append(count).append(", ").append(dp.toStringBuilder()).append(nl);
+            s += count+", "+dp.toString()+nl;
         }
-        return s.toString();
+        return s;
     }
     public int getNrResults() {
         if (results == null) return 0;

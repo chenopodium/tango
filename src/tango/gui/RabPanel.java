@@ -2,14 +2,12 @@ package tango.gui;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.text.DecimalFormat;
 
 import javax.swing.JPanel;
 
 import tango.experiment.CorrelationResults;
-import tango.experiment.Setup;
 import tango.results.AbstractResult;
 
 /** simple class that draws the correlation result from the experiment */
@@ -100,10 +98,8 @@ public class RabPanel extends JPanel {
 
             //		p("Plotting x/y "+y+"/"+y);
         }
-        // now draw cosine!
         
-        double xold = 0;
-       
+        double xold = 0;       
         for (double x = 0; x <= 360; x += 0.5) {
             g.setColor(Color.black);
             double y = res.computeValueForAngle(x);
@@ -127,6 +123,42 @@ public class RabPanel extends JPanel {
             xold = x;
             //		p("Plotting x/y "+y+"/"+y);
         }
+       
+        // draw triangle shape
+        xold = 0;  
+        // 0  => -1
+        // 180 => 
+        for (double x = 0; x <= 360; x += 90) {
+            g.setColor(Color.red);
+            double y = getTriangleY(x);
+            double yold = getTriangleY(xold);
+            // scale x from 0 - width
+            // scale y from 0 to height
+            int guix = (int) (x * dx) + BORDER;
+            int guiy = (int) (my - y * dy);
+            int guixold = (int) (xold * dx) + BORDER;
+            int guiyold = (int) (my - yold * dy);
+            g.drawOval(guix, guiy, 1, 1);
+            g.drawLine(guix, guiy, guixold, guiyold);
+            if (res.hasRedAngle(x) ) {
+                g.setColor(Color.red);
+                g.drawLine(guix, my, guix, guiy);
+            }
+            else if (res.hasGreenAngle(x)) {
+                g.setColor(Color.green);
+                g.drawLine(guix, my, guix, guiy);
+            }
+            xold = x;
+            //		p("Plotting x/y "+y+"/"+y);
+        }
+    }
+    
+    private double getTriangleY(double deg) {
+        deg = Math.abs(deg - 180.0);
+        double dy = 2.0/180;
+        double y = 0;
+         y = 1.0 - dy*deg;
+        return y;
     }
 
     private void p(String string) {

@@ -6,8 +6,7 @@ package tango.models.bryan;
 
 import tango.models.def.DefaultAngleGenerator;
 import tango.models.def.DefaultDetectorEfficiency;
-import tango.models.def.DefaultHiddenVariables;
-import tango.models.def.DefaultMeasurementFormula;
+
 import tango.experiment.ExperimentModel;
 import tango.experiment.HiddenVariablesIF;
 import tango.experiment.Particle;
@@ -23,13 +22,13 @@ public class BryansModel extends ExperimentModel{
         super("BRYAN", "Bryans model", "Bryans model based on 2D spin");
         this.setDetectorEfficiency(new DefaultDetectorEfficiency());
         
-        this.setMeasurementFormula(new DefaultMeasurementFormula());
+        this.setMeasurementFormula(new BryansMeasurementFormula());
         this.setAngleGenerator(new DefaultAngleGenerator());
     }
 
     @Override
     public HiddenVariablesIF createHiddenVariables() {
-        return new DefaultHiddenVariables();
+        return new BryansHiddenVariables();
     }
     
     @Override

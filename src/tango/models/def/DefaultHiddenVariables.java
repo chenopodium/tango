@@ -5,15 +5,14 @@
 package tango.models.def;
 
 import tango.experiment.Particle;
-import tango.experiment.HiddenVariablesIF;
-import tango.models.ModelItem;
+import tango.models.HiddenVariables;
 import tango.utils.RandomUtils;
 
 /**
  *
  * @author Chantal
  */
-public class DefaultHiddenVariables extends ModelItem implements HiddenVariablesIF {
+public class DefaultHiddenVariables extends HiddenVariables {
 
     private double theta;
 

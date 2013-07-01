@@ -24,10 +24,10 @@ import tango.models.external.ExternalDetectorEfficiency;
 import tango.models.external.ExternalExperimentModel;
 import tango.models.external.ExternalMeasurementFormula;
 import tango.guiutils.GuiUtils;
-import tango.mikesmodel.MikesAngleGenerator;
-import tango.mikesmodel.MikesDetectorEfficiency;
-import tango.mikesmodel.MikesExperimentModel;
-import tango.mikesmodel.MikesMeasurementFormula;
+import tango.models.mike.MikesAngleGenerator;
+import tango.models.mike.MikesDetectorEfficiency;
+import tango.models.mike.MikesExperimentModel;
+import tango.models.mike.MikesMeasurementFormula;
 import tango.models.dummy.DummyDetectorEfficiency;
 
 /**

@@ -31,6 +31,4 @@ public class BryansHiddenVariables extends DefaultHiddenVariables {
         this.vars = vars;
     }
     
-    
-    
 }

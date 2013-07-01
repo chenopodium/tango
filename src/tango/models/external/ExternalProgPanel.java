@@ -5,7 +5,7 @@
 package tango.models.external;
 
 import java.io.File;
-import tango.models.def.DefaultHiddenVariables;
+
 import tango.prefs.UserPref;
 import tango.utils.Executor;
 import tango.utils.FileTools;
