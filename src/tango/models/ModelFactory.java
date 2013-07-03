@@ -29,6 +29,9 @@ import tango.models.mike.MikesDetectorEfficiency;
 import tango.models.mike.MikesExperimentModel;
 import tango.models.mike.MikesMeasurementFormula;
 import tango.models.dummy.DummyDetectorEfficiency;
+import tango.models.random1.Random1DetectorEfficiency;
+import tango.models.random1.Random1ExperimentModel;
+import tango.models.random1.Random1MeasurementFormula;
 
 /**
  *
@@ -52,6 +55,7 @@ public class ModelFactory {
         models.add(new BryansModel());
         models.add(new MikesExperimentModel());
         models.add(new ExternalExperimentModel(exp));
+        models.add(new Random1ExperimentModel());
         return models;
     }
     public static ArrayList<DetectorEfficiencyIF> getPossibleDetectorEfficencies(Experiment exp) {
@@ -61,6 +65,7 @@ public class ModelFactory {
         eff.add(new ExternalDetectorEfficiency(exp));
         eff.add(new MikesDetectorEfficiency());
         eff.add(new DummyDetectorEfficiency());
+        eff.add(new Random1DetectorEfficiency());
         return eff;        
     }
     public static ArrayList<MeasurementFormulaIF> getPossibleMeasurementFormulas(Experiment exp) {
@@ -68,8 +73,9 @@ public class ModelFactory {
         form.add(new DefaultMeasurementFormula());
         form.add(new ChantalsMeasurementFormula());
         form.add(new BryansMeasurementFormula());
-        form.add(new MikesMeasurementFormula());
+        form.add(new MikesMeasurementFormula());        
         form.add(new ExternalMeasurementFormula(exp));
+        form.add(new Random1MeasurementFormula());
         return form;
     }
      public static ArrayList<AngleGeneratorIF> getPossibleAngleGenerators() {

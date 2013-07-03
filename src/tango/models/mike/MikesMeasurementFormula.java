@@ -29,23 +29,7 @@ public class MikesMeasurementFormula extends ModelItem implements MeasurementFor
     public MikesMeasurementFormula() {
       super("MIKES_FORMULA", "Mikes formula", "Spin is sign (sin(angle))");
     }
-   
-/*
- * @Override
-     public int measure(Detector detector, Particle particle) {   
-        // might need to cast to MikesFormula if you are using more variables!
-        DefaultHiddenVariables vars = (DefaultHiddenVariables) particle.getHiddenVars();
-        double theta = vars.getTheta();
-        
-        if (particle.isB()) theta = theta + 180;
-        
-        double d = theta+ detector.getAngleInDegrees();
-        
-        int spin = -(int) Math.signum(Math.sin(Math.toRadians(d)));                
-        
-        return spin;
-     }
-*/
+  
 
     static int dichotomic(double x) {
         return x>=0 ? +1 : -1;

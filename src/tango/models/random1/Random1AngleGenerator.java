@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package tango.mikesmodel;
+package tango.models.random1;
 
+import tango.models.def.*;
 import tango.experiment.AngleGeneratorIF;
 import tango.models.ModelItem;
 import tango.utils.RandomUtils;
@@ -12,15 +13,15 @@ import tango.utils.RandomUtils;
  *
  * @author Chantal
  */
-public class MikesAngleGenerator extends ModelItem implements AngleGeneratorIF {
+public class Random1AngleGenerator extends ModelItem implements AngleGeneratorIF {
     
-    public MikesAngleGenerator() {
-        super("MIKE_GEN", "Mikes generator", "Generates random angles (steps of 45 degrees)");
+    public Random1AngleGenerator() {
+        super("RANDOM1GEN", "Default generator", "Generates random angles (steps of 45 degrees)");
     }
     
     @Override
     public AngleGeneratorIF createInstance(){
-        return new MikesAngleGenerator();
+        return new Random1AngleGenerator();
     }
     @Override
     public double nextAngle() {       

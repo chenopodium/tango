@@ -45,6 +45,8 @@ import tango.results.CHSHResult;
 import tango.results.QRCResult;
 import tango.utils.ErrorHandler;
 import tango.utils.FileTools;
+import tango.utils.ProgressListener;
+import tango.utils.Task;
 
 /**
  *
@@ -100,14 +102,6 @@ public class ExperimentPanel extends javax.swing.JPanel {
     }
 
     private void updateGUI() {
-
-        if (correlations != null) {
-
-            this.lblCHSH.setText("CHSH: " + f.format(results.get(0).computeValue()));
-        } else {
-            this.lblCHSH.setText("CHSH: no result yet");
-        }
-
         this.lblLhvModel.setToolTipText(model.getDescription());
         this.btnLHVModel.setToolTipText(model.getDescription());
         this.lblEffA.setText(f.format(detectorA.getPercentDetected()) + "%");
@@ -148,23 +142,15 @@ public class ExperimentPanel extends javax.swing.JPanel {
         if (correlations != null) {
             AbstractResult res = results.get(0);
             this.lblCHSH.setText(res.getName() + " " + f.format(res.computeValue()));
-            RabPanel chart = new RabPanel(correlations, results.get(0));
-            detailPanel.removeAll();
-            detailPanel.add("Center", chart);
-
             rabContainer.removeAll();
-
             RabPanel tiny = new RabPanel(correlations, true, res);
             rabContainer.add("Center", tiny);
-
-            rabContainer.invalidate();
-            rabContainer.revalidate();
             rabContainer.repaint();
 
         } else {
             this.btnResultsA.setToolTipText("No data yet - run the experiment first");
             this.btnResultsDB.setToolTipText("No data yet - run the experiment first");
-            this.lblCHSH.setText("CHSH: No data yet");
+            this.lblCHSH.setText("CHSH:");
         }
     }
 
@@ -185,24 +171,63 @@ public class ExperimentPanel extends javax.swing.JPanel {
         }
     }
 
+    private class RunExperimentTask extends Task implements ProgressListener {
+
+        public RunExperimentTask() {
+            super(new ExperimentProgressListener());
+        }
+
+        @Override
+        public Void doInBackground() {
+
+            int prog = 0;
+            int delta = Math.max(1000, times / 100);
+            for (int t = 0; t < times; t++) {
+                experiment.runOnce();
+                if (t % delta == 0) {
+                    super.setProgressValue(prog++);
+                    updateGUI();
+                }
+            }
+            return null;
+        }
+
+        public boolean isSuccess() {
+            return true;
+        }
+    }
+
+    private class ExperimentProgressListener implements ProgressListener {
+
+        @Override
+        public void setProgressValue(int progress) {
+        }
+
+        @Override
+        public void setMessage(String msg) {
+        }
+
+        @Override
+        public void stop() {
+            afterRunExperiment();
+        }
+    }
+
     public void runExperiment() {
 
-        if (firstTime || new File(prefs.getOutputFolder()).exists()==false) {
+        if (firstTime || new File(prefs.getOutputFolder()).exists() == false) {
             pickOutputFolder();
         }
 
         detectorA.resetData();
         detectorB.resetData();
-        for (int t = 0; t < times; t++) {
-            experiment.runOnce();
-            if (t % 100 == 0) {
-                updateGUI();
-            }
-        }
+        RunExperimentTask task = new RunExperimentTask();
+        task.execute();
+    }
 
+    private void afterRunExperiment() {
         correlations = new CorrelationResults();
         correlations.computeCorrelations(detectorA, detectorB);
-        correlations.saveResults();
 
 
         results = new ArrayList<AbstractResult>();
@@ -210,25 +235,45 @@ public class ExperimentPanel extends javax.swing.JPanel {
         QRCResult qrc = new QRCResult(correlations);
         results.add(chsh);
         results.add(qrc);
-        for (AbstractResult res : results) {
-            String filename = "results_" + res.getId();
-            String path = prefs.getOutputFolder();
-            FileTools.writeStringToFile(new File(path + filename + ".csv"), res.getStringResult(), false);
-        }
-
-/*
- * String msg = detectorA.getResultsAsCsv();
-        String filename = "results_detector_a";
-        String path = prefs.getOutputFolder();
-        FileTools.writeStringToFile(new File(path + filename + ".csv"), msg, false);
-
-        msg = detectorB.getResultsAsCsv();
-        filename = "results_detector_b";
-        path = prefs.getOutputFolder();
-        FileTools.writeStringToFile(new File(path + filename + ".csv"), msg, false);
-*/
 
         updateGUI();
+        WriteResultsTask task = new WriteResultsTask();
+        task.execute();
+       
+    }
+
+    private class WriteResultsTask extends Task {
+
+        public WriteResultsTask() {
+            super(null);
+        }
+
+        @Override
+        public boolean isSuccess() {
+            return true;
+        }
+
+        @Override
+        protected Void doInBackground() {
+            correlations.saveResults();
+
+            String msg = detectorA.getResultsAsCsv();
+            String filename = "results_detector_a";
+            String path = prefs.getOutputFolder();
+            FileTools.writeStringToFile(new File(path + filename + ".csv"), msg, false);
+
+            msg = detectorB.getResultsAsCsv();
+            filename = "results_detector_b";
+            path = prefs.getOutputFolder();
+            FileTools.writeStringToFile(new File(path + filename + ".csv"), msg, false);
+
+            for (AbstractResult res : results) {
+                filename = "results_" + res.getId();
+                FileTools.writeStringToFile(new File(path + filename + ".csv"), res.getStringResult(), false);
+            }
+            p("Writing results done");
+            return null;
+        }
     }
 
     /**
@@ -452,10 +497,10 @@ public class ExperimentPanel extends javax.swing.JPanel {
         add(lblAnglesB, new org.netbeans.lib.awtextra.AbsoluteConstraints(790, 60, 130, -1));
 
         lblCountA.setText("6758");
-        add(lblCountA, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 330, 40, 20));
+        add(lblCountA, new org.netbeans.lib.awtextra.AbsoluteConstraints(140, 330, 70, 20));
 
         lblCountB.setText("3994");
-        add(lblCountB, new org.netbeans.lib.awtextra.AbsoluteConstraints(720, 330, 40, 20));
+        add(lblCountB, new org.netbeans.lib.awtextra.AbsoluteConstraints(710, 330, 70, 20));
 
         lblEffA.setText("98%   ");
         add(lblEffA, new org.netbeans.lib.awtextra.AbsoluteConstraints(150, 240, 60, 20));
@@ -682,7 +727,6 @@ public class ExperimentPanel extends javax.swing.JPanel {
     private void btnDir1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDir1ActionPerformed
         this.pickOutputFolder();
     }//GEN-LAST:event_btnDir1ActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAnglesA;
     private javax.swing.JButton btnAnglesB;
@@ -727,7 +771,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
 
     private void setSeed() {
         String ans = JOptionPane.showInputDialog(this, "Enter an integer to set random seed", prefs.seed.getValue());
-        if (ans != null && ans.length() >0 ){
+        if (ans != null && ans.length() > 0) {
             try {
                 int nr = Integer.parseInt(ans);
                 prefs.setSeed(nr);
@@ -743,8 +787,8 @@ public class ExperimentPanel extends javax.swing.JPanel {
             int nr = Integer.parseInt(ans);
             prefs.times.setValue(nr);
             this.times = nr;
-            if (times > 10000) {
-                JOptionPane.showMessageDialog(this, "<html>It might take a long time to compute " + times + " pairs.</html>");
+            if (times > 100000) {
+                JOptionPane.showMessageDialog(this, "<html>It might take some time to compute " + times + " pairs.</html>");
             }
         } catch (Exception e) {
             ErrorHandler.showError("Could not convert " + ans + " to nr of pairs (integer)");
@@ -766,9 +810,9 @@ public class ExperimentPanel extends javax.swing.JPanel {
         String msg = " the measurement class for " + detector.getName();
         MeasurementFormulaIF res = (MeasurementFormulaIF) pickItem(ModelFactory.getPossibleMeasurementFormulas(this.experiment), model.getMeasurementFormula(), msg);
         //model.setMeasurementFormula(res); 
-        
+
         res.check();
-                
+
         detector.setMeasurementFormula(res);
         res.init();
         // init formula
