@@ -81,7 +81,7 @@ public class ModelFactory {
      public static ArrayList<AngleGeneratorIF> getPossibleAngleGenerators() {
         ArrayList<AngleGeneratorIF> ang = new ArrayList<AngleGeneratorIF> ();
         ang.add(new DefaultAngleGenerator());
-        ang.add(new MikesAngleGenerator());
+        ang.add(new MikesAngleGenerator()); 
         ang.add(new ExternalAngleGenerator());        
         return ang;
     }

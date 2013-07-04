@@ -6,15 +6,14 @@ package tango.models.chantal;
 
 import tango.models.def.DefaultAngleGenerator;
 import tango.models.def.DefaultHiddenVariables;
-import tango.models.def.DefaultMeasurementFormula;
-import tango.experiment.ExperimentModel;
 import tango.experiment.HiddenVariablesIF;
+import tango.models.def.DefaultExperimentModel;
 
 /**
  *
  * @author Chantal
  */
-public class ChantalsModel extends ExperimentModel {
+public class ChantalsModel extends DefaultExperimentModel {
     
      public ChantalsModel() {
         super("CHANTAL", "Chantals model", "Chantals model that gets quite a good correlation by missing some events :-)");

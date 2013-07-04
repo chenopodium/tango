@@ -181,12 +181,16 @@ public class ExperimentPanel extends javax.swing.JPanel {
         public Void doInBackground() {
 
             int prog = 0;
-            int delta = Math.max(1000, times / 100);
+            int delta = Math.max(10000, times / 20);
             for (int t = 0; t < times; t++) {
                 experiment.runOnce();
                 if (t % delta == 0) {
                     super.setProgressValue(prog++);
-                    updateGUI();
+                    java.awt.EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                            updateGUI();
+                        }
+                    });
                 }
             }
             return null;
@@ -215,7 +219,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
 
     public void runExperiment() {
 
-        if (firstTime || new File(prefs.getOutputFolder()).exists() == false) {
+        if (prefs.getOutputFolder() == null || new File(prefs.getOutputFolder()).exists() == false) {
             pickOutputFolder();
         }
 
@@ -239,7 +243,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
         updateGUI();
         WriteResultsTask task = new WriteResultsTask();
         task.execute();
-       
+
     }
 
     private class WriteResultsTask extends Task {
