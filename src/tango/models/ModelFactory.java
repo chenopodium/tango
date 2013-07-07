@@ -39,7 +39,8 @@ import tango.models.random1.Random1MeasurementFormula;
  */
 public class ModelFactory {
     
-    public ExperimentModel getModel(String key, Experiment exp) {
+    public static ExperimentModel getModel(String key, Experiment exp) {
+        if (key == null) return null;
         for (ExperimentModel model: getPossibleModels(exp)) {
             if (model.getKey().equalsIgnoreCase(key )) {
                 return model;

@@ -48,7 +48,9 @@ public class Detector {
     public int getNrDetected() {
         if (results == null) return 0;
         int count = 0;
-        for (DataPoint dp: results) {
+        int nr = results.size();
+        for (int i = 0; i < nr; i++) {
+            DataPoint dp = results.get(i);
             if (dp.isDetected()) count++;
         }
         return count;

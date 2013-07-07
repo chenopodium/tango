@@ -16,7 +16,7 @@ import tango.models.def.DefaultExperimentModel;
 public class ChantalsModel extends DefaultExperimentModel {
     
      public ChantalsModel() {
-        super("CHANTAL", "Chantals model", "Chantals model that gets quite a good correlation by missing some events :-)");
+        super("CHANTAL", "Chantals model", "Chantals model that even beats QM by missing some events :-)");
         this.setDetectorEfficiency(new ChantalsDetectorEfficiency());
         
         this.setMeasurementFormula(new ChantalsMeasurementFormula());

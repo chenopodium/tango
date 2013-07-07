@@ -18,7 +18,7 @@ public class ChantalsDetectorEfficiency extends ModelItem implements DetectorEff
     
     
     public ChantalsDetectorEfficiency() {
-         super("CHANTAL", "Chantals efficiency", "Does not detect some events when the angle is close to 0");
+         super("CHANTAL", "Chantals efficiency", "Does not detect some events when the angle is close to 0 (sin(alpha))");
     }
      @Override
     public DetectorEfficiencyIF createInstanc() {
@@ -28,7 +28,7 @@ public class ChantalsDetectorEfficiency extends ModelItem implements DetectorEff
     public boolean isDetected(Particle particle, Detector detector) {
         DefaultHiddenVariables vars = (DefaultHiddenVariables) particle.getHiddenVars();
         double theta = vars.getTheta();      
-        double pdetect = 2.3*Math.abs(Math.sin(Math.toRadians(theta + detector.getAngleInDegrees())));        
+        double pdetect = Math.abs(Math.sin(Math.toRadians(theta + detector.getAngleInDegrees())));        
         if (Math.random()<=pdetect) return true;
         else return false;
      }

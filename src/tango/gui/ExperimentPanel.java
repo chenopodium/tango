@@ -83,8 +83,11 @@ public class ExperimentPanel extends javax.swing.JPanel {
 
     }
 
-    public void restart() {
-        model = new DefaultExperimentModel();
+    public void restart() {        
+        model = ModelFactory.getModel(prefs.model.getValue(), experiment);
+        if (model == null) {
+            model = new DefaultExperimentModel();            
+        }
         experiment = new Experiment(model);
         detectorA = experiment.getDetectorA();
 
@@ -787,12 +790,14 @@ public class ExperimentPanel extends javax.swing.JPanel {
 
     private void setTimes() {
         String ans = JOptionPane.showInputDialog(this, "Enter the nr of particle pairs to be generated", prefs.times.getValue());
+        if (ans == null) return;
         try {
             int nr = Integer.parseInt(ans);
             prefs.times.setValue(nr);
             this.times = nr;
+            times = Math.min(times, 1000000);
             if (times > 100000) {
-                JOptionPane.showMessageDialog(this, "<html>It might take some time to compute " + times + " pairs.</html>");
+                JOptionPane.showMessageDialog(this, "<html>It might take some time to compute " + times + " pairs (max is 1 million)</html>");
             }
         } catch (Exception e) {
             ErrorHandler.showError("Could not convert " + ans + " to nr of pairs (integer)");
@@ -836,6 +841,7 @@ public class ExperimentPanel extends javax.swing.JPanel {
     public void pickModel() {
         String msg = "Pick a model";
         model = ((ExperimentModel) pickItem(ModelFactory.getPossibleModels(experiment), model, msg));
+        this.prefs.model.setValue(model.getKey());
         experiment.setModel(model);
         detectorA.resetModel();
         detectorB.resetModel();
